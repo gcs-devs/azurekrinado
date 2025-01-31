@@ -1,84 +1,80 @@
-# Configuração do Provider Azure
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.0"
-    }
-  }
-}
-
 provider "azurerm" {
   features {}
+} 
+
+data "azurerm_client_config" "current" {} 
+
+resource "azurerm_resource_group" "example" {
+  name     = "example-resources"
+  location = "brazilsouth"
+} 
+
+resource "azurerm_disk_access" "setup" {
+  name                = var.diskAccesses_setup_name
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
 }
 
-# Resource Group
-resource "azurerm_resource_group" "rg" {
-  name     = "rg-assessment-app"
-  location = "eastus2"
-}
-
-# AKS Cluster
-resource "azurerm_kubernetes_cluster" "aks" {
-  name                = "aks-assessment"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  dns_prefix          = "aks-assessment"
-
-  default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_D2_v2"
-  }
-
+resource "azurerm_data_share_account" "teste" {
+  name                = var.accounts_teste_name
+  location            = "southcentralus"
+  resource_group_name = azurerm_resource_group.example.name
   identity {
     type = "SystemAssigned"
   }
 }
 
-# Declaração do recurso de dados azurerm_client_config
-data "azurerm_client_config" "current" {}
+resource "azurerm_storage_account" "procon" {
+  name                     = var.storageAccounts_procon_name
+  location                 = azurerm_resource_group.example.location
+  resource_group_name      = azurerm_resource_group.example.name
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  kind                     = "StorageV2"
+  enable_https_traffic_only = true
+  allow_blob_public_access = true
+  large_file_share_enabled = true
+  min_tls_version          = "TLS1_2"
+  blob_properties {
+    delete_retention_policy {
+      days = 7
+    }
+  }
+  file_properties {
+    delete_retention_policy {
+      days = 7
+    }
+  }
+  queue_properties {}
+  table_properties {}
+}
 
-# Azure Key Vault
+resource "azurerm_storage_container" "calombo" {
+  name                  = "calombo"
+  storage_account_name  = azurerm_storage_account.procon.name
+  container_access_type = "container"
+} 
+
 resource "azurerm_key_vault" "kv" {
-  name                = "kv-assessment-app"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = "examplekeyvault"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
   sku_name            = "standard"
-
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-
-    secret_permissions = [
-      "Get", "List"
-    ]
-  }
 }
 
-# Azure Database for PostgreSQL
-resource "azurerm_postgresql_server" "db" {
-  name                = "psql-assessment-app"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  sku_name = "B_Gen5_1"
-
-  storage_mb                   = 5120
-  backup_retention_days        = 7
-  geo_redundant_backup_enabled = false
-  auto_grow_enabled            = true
-
-  administrator_login          = "psqladmin"
-  administrator_login_password = "H@Sh1CoR3!"
-  version                      = "11"
-  ssl_enforcement_enabled      = true
-}
-
-# Key Vault Secret
 resource "azurerm_key_vault_secret" "db_connection" {
-  name         = "DB-CONNECTION-STRING"
-  value        = "postgresql://${azurerm_postgresql_server.db.administrator_login}:${azurerm_postgresql_server.db.administrator_login_password}@${azurerm_postgresql_server.db.fqdn}:5432/postgres?sslmode=require"
+  name         = "db-connection-string"
+  value        = "your-db-connection-string"
   key_vault_id = azurerm_key_vault.kv.id
+}
+
+resource "azurerm_key_vault_access_policy" "example" {
+  key_vault_id = azurerm_key_vault.kv.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id
+  secret_permissions = [
+    "get",
+    "list",
+  ]
 }
