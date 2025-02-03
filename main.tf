@@ -103,10 +103,10 @@ resource "azurerm_mssql_server" "example" {
 }
 
 resource "azurerm_mssql_database" "example" {
-    name       = "example-db"
-    server_id  = azurerm_mssql_server.example.id
-    collation  = "SQL_Latin1_General_CP1_CI_AS"
-    sku_name   = "S0"
+  name       = "example-db"
+  server_id  = azurerm_mssql_server.example.id
+  collation  = "SQL_Latin1_General_CP1_CI_AS"
+  sku_name   = "S0"
 }
 
 resource "azurerm_kubernetes_cluster" "example" {
