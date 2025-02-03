@@ -32,6 +32,7 @@ resource "azurerm_storage_account" "procon" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
+
   blob_properties {
     delete_retention_policy {
       days = 7
@@ -47,6 +48,7 @@ resource "azurerm_storage_container" "calombo" {
 
 resource "azurerm_storage_account_queue_properties" "example" {
   storage_account_id = azurerm_storage_account.procon.id
+
   logging {
     version                = "1.0"
     delete                 = true
@@ -67,7 +69,7 @@ resource "azurerm_storage_account_queue_properties" "example" {
 }
 
 resource "azurerm_key_vault" "kv" {
-  name                = "unique-keyvault-name-12345"
+  name                = "uniquekeyvault12345"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
@@ -83,7 +85,7 @@ resource "azurerm_key_vault_secret" "db_connection" {
 resource "azurerm_key_vault_access_policy" "example" {
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azurerm_client_config.current.object_id 
+  object_id    = data.azurerm_client_config.current.object_id
 
   secret_permissions = [
     "Get",
@@ -91,7 +93,7 @@ resource "azurerm_key_vault_access_policy" "example" {
   ]
 }
 
-resource "azurerm_sql_server" "example" {
+resource "azurerm_mssql_server" "example" {
   name                         = "examplesqlserver"
   resource_group_name          = azurerm_resource_group.example.name
   location                     = azurerm_resource_group.example.location
@@ -100,11 +102,11 @@ resource "azurerm_sql_server" "example" {
   administrator_login_password = "H@Sh1CoR3!"
 }
 
-resource "azurerm_sql_database" "example" {
+resource "azurerm_mssql_database" "example" {
   name                = "exampledb"
-  resource_group_name = azurerm_sql_server.example.resource_group_name
-  location            = azurerm_sql_server.example.location
-  server_name         = azurerm_sql_server.example.name
+  resource_group_name = azurerm_mssql_server.example.resource_group_name
+  location            = azurerm_mssql_server.example.location
+  server_name         = azurerm_mssql_server.example.name
   sku_name            = "S0"
 }
 
