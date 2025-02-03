@@ -30,26 +30,14 @@ resource "azurerm_storage_account" "procon" {
   resource_group_name      = azurerm_resource_group.example.name
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  kind                     = "StorageV2"
   enable_https_traffic_only = true
-  allow_blob_public_access = true
-  large_file_share_enabled = true
   min_tls_version          = "TLS1_2"
-
   blob_properties {
     delete_retention_policy {
       days = 7
     }
   }
-
-  file_properties {
-    delete_retention_policy {
-      days = 7
-    }
-  }
-
   queue_properties {}
-  table_properties {}
 }
 
 resource "azurerm_storage_container" "calombo" {
@@ -62,12 +50,8 @@ resource "azurerm_key_vault" "kv" {
   name                = "examplekeyvault"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
-  properties {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    sku {
-      name = "standard"
-    }
-  }
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  sku_name            = "standard"
 }
 
 resource "azurerm_key_vault_secret" "db_connection" {
@@ -75,8 +59,6 @@ resource "azurerm_key_vault_secret" "db_connection" {
   value        = "your-db-connection-string"
   key_vault_id = azurerm_key_vault.kv.id
 }
-
- 
 
 resource "azurerm_key_vault_access_policy" "example" {
   key_vault_id = azurerm_key_vault.kv.id
