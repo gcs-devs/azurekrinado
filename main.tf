@@ -30,7 +30,6 @@ resource "azurerm_storage_account" "procon" {
   resource_group_name      = azurerm_resource_group.example.name
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  enable_https_traffic_only = true
   min_tls_version          = "TLS1_2"
   blob_properties {
     delete_retention_policy {
@@ -44,7 +43,7 @@ resource "azurerm_storage_container" "calombo" {
   name                  = "calombo"
   storage_account_name  = azurerm_storage_account.procon.name
   container_access_type = "container"
-}
+} 
 
 resource "azurerm_key_vault" "kv" {
   name                = "examplekeyvault"
@@ -52,7 +51,7 @@ resource "azurerm_key_vault" "kv" {
   resource_group_name = azurerm_resource_group.example.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
   sku_name            = "standard"
-}
+} 
 
 resource "azurerm_key_vault_secret" "db_connection" {
   name         = "db-connection-string"
@@ -64,7 +63,6 @@ resource "azurerm_key_vault_access_policy" "example" {
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = data.azurerm_client_config.current.object_id
-
   secret_permissions = [
     "Get",
     "List",
