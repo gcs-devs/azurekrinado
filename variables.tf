@@ -13,5 +13,5 @@ variable "accounts_teste_name" {
 variable "storageAccounts_procon_name" {
   description = "Nome da conta de armazenamento procon"
   type        = string
-  default     = "procon"
+  default     = "proconunique12345"
 }
