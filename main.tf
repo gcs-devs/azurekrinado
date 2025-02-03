@@ -67,7 +67,7 @@ resource "azurerm_storage_account_queue_properties" "example" {
 }
 
 resource "azurerm_key_vault" "kv" {
-  name                = "unique-keyvault-name"
+  name                = "unique-keyvault-name-12345"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
@@ -83,9 +83,48 @@ resource "azurerm_key_vault_secret" "db_connection" {
 resource "azurerm_key_vault_access_policy" "example" {
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azurerm_client_config.current.object_id
+  object_id    = data.azurerm_client_config.current.object_id 
+
   secret_permissions = [
     "Get",
     "List",
   ]
+}
+
+resource "azurerm_sql_server" "example" {
+  name                         = "examplesqlserver"
+  resource_group_name          = azurerm_resource_group.example.name
+  location                     = azurerm_resource_group.example.location
+  version                      = "12.0"
+  administrator_login          = "sqladmin"
+  administrator_login_password = "H@Sh1CoR3!"
+}
+
+resource "azurerm_sql_database" "example" {
+  name                = "exampledb"
+  resource_group_name = azurerm_sql_server.example.resource_group_name
+  location            = azurerm_sql_server.example.location
+  server_name         = azurerm_sql_server.example.name
+  sku_name            = "S0"
+}
+
+resource "azurerm_kubernetes_cluster" "example" {
+  name                = "exampleaks"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  dns_prefix          = "exampleaks"
+  default_node_pool {
+    name       = "default"
+    node_count = 1
+    vm_size    = "Standard_DS2_v2"
+  }
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+resource "kubernetes_namespace" "example" {
+  metadata {
+    name = "example-namespace"
+  }
 }
