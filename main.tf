@@ -37,22 +37,42 @@ resource "azurerm_storage_account" "procon" {
       days = 7
     }
   }
-  queue_properties {}
 }
 
 resource "azurerm_storage_container" "calombo" {
   name                  = "calombo"
   storage_account_name  = azurerm_storage_account.procon.name
   container_access_type = "container"
-} 
+}
+
+resource "azurerm_storage_account_queue_properties" "example" {
+  storage_account_id = azurerm_storage_account.procon.id
+  logging {
+    version                = "1.0"
+    delete                 = true
+    read                   = true
+    write                  = true
+    retention_policy_days  = 7
+  }
+
+  hour_metrics {
+    version                = "1.0"
+    retention_policy_days  = 7
+  }
+
+  minute_metrics {
+    version                = "1.0"
+    retention_policy_days  = 7
+  }
+}
 
 resource "azurerm_key_vault" "kv" {
-  name                = "examplekeyvault"
+  name                = "unique-keyvault-name"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
   sku_name            = "standard"
-} 
+}
 
 resource "azurerm_key_vault_secret" "db_connection" {
   name         = "db-connection-string"
