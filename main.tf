@@ -54,10 +54,12 @@ resource "azurerm_storage_account_queue_properties" "example" {
     write                  = true
     retention_policy_days  = 7
   }
+
   hour_metrics {
     version                = "1.0"
     retention_policy_days  = 7
   }
+
   minute_metrics {
     version                = "1.0"
     retention_policy_days  = 7
@@ -85,7 +87,7 @@ resource "azurerm_key_vault_access_policy" "example" {
   secret_permissions = [
     "Get",
     "List",
-   ]
+  ]
 }
 
 resource "azurerm_mssql_server" "example" {
@@ -98,11 +100,9 @@ resource "azurerm_mssql_server" "example" {
 }
 
 resource "azurerm_mssql_database" "example" {
-  name                = "exampledb"
-  resource_group_name = azurerm_mssql_server.example.resource_group_name
-  location            = azurerm_mssql_server.example.location
-  server_name         = azurerm_mssql_server.example.name
-  sku_name            = "S0"
+  name      = "exampledb"
+  server_id = azurerm_mssql_server.example.id
+  sku_name  = "S0"
 }
 
 resource "azurerm_kubernetes_cluster" "example" {
