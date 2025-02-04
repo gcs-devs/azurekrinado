@@ -54,12 +54,10 @@ resource "azurerm_storage_account_queue_properties" "example" {
     write                  = true
     retention_policy_days  = 7
   }
-
   hour_metrics {
     version                = "1.0"
     retention_policy_days  = 7
   }
-
   minute_metrics {
     version                = "1.0"
     retention_policy_days  = 7
@@ -105,8 +103,6 @@ resource "azurerm_mssql_database" "example" {
   sku_name  = "S0"
 }
 
- 
-
 resource "azurerm_kubernetes_cluster" "example" {
   name                = "exampleaks"
   location            = azurerm_resource_group.example.location
@@ -135,7 +131,8 @@ provider "kubernetes" {
   host                   = azurerm_kubernetes_cluster.example.kube_config.0.host
   client_certificate     = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.client_certificate)
   client_key             = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.client_key)
- cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.cluster_ca_certificate)
+  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.cluster_ca_certificate)
+  depends_on             = [null_resource.configure_kubernetes]
 }
 
 resource "kubernetes_namespace" "example" {
