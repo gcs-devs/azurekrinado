@@ -1,6 +1,6 @@
 provider "azurerm" {
   features {}
-  subscription_id = "830edc45-1a69-46d2-8598-c4cdb195fd4c"
+  subscription_id = "your-subscription-id"
 }
 
 data "azurerm_client_config" "current" {}
@@ -32,7 +32,6 @@ resource "azurerm_storage_account" "procon" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
-
   blob_properties {
     delete_retention_policy {
       days = 7
@@ -48,7 +47,6 @@ resource "azurerm_storage_container" "calombo" {
 
 resource "azurerm_storage_account_queue_properties" "example" {
   storage_account_id = azurerm_storage_account.procon.id
-
   logging {
     version                = "1.0"
     delete                 = true
@@ -69,9 +67,9 @@ resource "azurerm_storage_account_queue_properties" "example" {
 }
 
 resource "azurerm_key_vault" "kv" {
-  name                = "uniquekeyvault12345"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
+  name                = "kv-assessment-app"
+  location            = "eastus2"
+  resource_group_name = "rg-assessment-app"
   tenant_id           = data.azurerm_client_config.current.tenant_id
   sku_name            = "standard"
 }
@@ -85,7 +83,7 @@ resource "azurerm_key_vault_secret" "db_connection" {
 resource "azurerm_key_vault_access_policy" "example" {
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azurerm_client_config.current.object_id
+  object_id    = data.azurerm_client_config.current.object_id 
 
   secret_permissions = [
     "Get",
@@ -103,11 +101,12 @@ resource "azurerm_mssql_server" "example" {
 }
 
 resource "azurerm_mssql_database" "example" {
-  name       = "example-db"
-  server_id  = azurerm_mssql_server.example.id
-  collation  = "SQL_Latin1_General_CP1_CI_AS"
-  sku_name   = "S0"
-}
+  name                = "exampledb"
+  resource_group_name = azurerm_mssql_server.example.resource_group_name
+  location            = azurerm_mssql_server.example.location
+  server_name         = azurerm_mssql_server.example.name
+  sku_name            = "S0"
+} 
 
 resource "azurerm_kubernetes_cluster" "example" {
   name                = "exampleaks"
@@ -122,7 +121,7 @@ resource "azurerm_kubernetes_cluster" "example" {
   identity {
     type = "SystemAssigned"
   }
-}
+} 
 
 resource "kubernetes_namespace" "example" {
   metadata {
