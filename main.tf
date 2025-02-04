@@ -34,7 +34,7 @@ resource "azurerm_storage_account" "procon" {
   min_tls_version          = "TLS1_2"
   blob_properties {
     delete_retention_policy {
-      days = 7
+     days = 7
     }
   }
 }
@@ -54,12 +54,10 @@ resource "azurerm_storage_account_queue_properties" "example" {
     write                  = true
     retention_policy_days  = 7
   }
-
   hour_metrics {
     version                = "1.0"
     retention_policy_days  = 7
   }
-
   minute_metrics {
     version                = "1.0"
     retention_policy_days  = 7
@@ -134,7 +132,6 @@ provider "kubernetes" {
   client_certificate     = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.client_certificate)
   client_key             = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.client_key)
   cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.cluster_ca_certificate)
-  depends_on = [null_resource.configure_kubernetes]
 }
 
 resource "kubernetes_namespace" "example" {
