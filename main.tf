@@ -54,12 +54,10 @@ resource "azurerm_storage_account_queue_properties" "example" {
     write                  = true
     retention_policy_days  = 7
   }
-
   hour_metrics {
     version                = "1.0"
     retention_policy_days  = 7
   }
-
   minute_metrics {
     version                = "1.0"
     retention_policy_days  = 7
@@ -83,12 +81,11 @@ resource "azurerm_key_vault_secret" "db_connection" {
 resource "azurerm_key_vault_access_policy" "example" {
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azurerm_client_config.current.object_id 
-
+  object_id    = data.azurerm_client_config.current.object_id
   secret_permissions = [
     "Get",
     "List",
-  ]
+   ]
 }
 
 resource "azurerm_mssql_server" "example" {
@@ -106,7 +103,7 @@ resource "azurerm_mssql_database" "example" {
   location            = azurerm_mssql_server.example.location
   server_name         = azurerm_mssql_server.example.name
   sku_name            = "S0"
-} 
+}
 
 resource "azurerm_kubernetes_cluster" "example" {
   name                = "exampleaks"
@@ -121,7 +118,7 @@ resource "azurerm_kubernetes_cluster" "example" {
   identity {
     type = "SystemAssigned"
   }
-} 
+}
 
 resource "kubernetes_namespace" "example" {
   metadata {
