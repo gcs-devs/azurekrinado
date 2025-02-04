@@ -3,6 +3,13 @@ provider "azurerm" {
   subscription_id = "830edc45-1a69-46d2-8598-c4cdb195fd4c"
 }
 
+provider "kubernetes" {
+  host                   = azurerm_kubernetes_cluster.example.kube_config.0.host
+  client_certificate     = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.client_certificate)
+  client_key             = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.client_key)
+  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.cluster_ca_certificate)
+}
+
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_resource_group" "example" {
