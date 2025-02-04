@@ -34,7 +34,7 @@ resource "azurerm_storage_account" "procon" {
   min_tls_version          = "TLS1_2"
   blob_properties {
     delete_retention_policy {
-     days = 7
+      days = 7
     }
   }
 }
@@ -54,10 +54,12 @@ resource "azurerm_storage_account_queue_properties" "example" {
     write                  = true
     retention_policy_days  = 7
   }
+
   hour_metrics {
     version                = "1.0"
     retention_policy_days  = 7
   }
+
   minute_metrics {
     version                = "1.0"
     retention_policy_days  = 7
@@ -66,8 +68,8 @@ resource "azurerm_storage_account_queue_properties" "example" {
 
 resource "azurerm_key_vault" "kv" {
   name                = "kv-assessment-app"
-  location            = "eastus2"
-  resource_group_name = "rg-assessment-app"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
   sku_name            = "standard"
 }
@@ -103,6 +105,8 @@ resource "azurerm_mssql_database" "example" {
   sku_name  = "S0"
 }
 
+ 
+
 resource "azurerm_kubernetes_cluster" "example" {
   name                = "exampleaks"
   location            = azurerm_resource_group.example.location
@@ -131,7 +135,7 @@ provider "kubernetes" {
   host                   = azurerm_kubernetes_cluster.example.kube_config.0.host
   client_certificate     = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.client_certificate)
   client_key             = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.client_key)
-  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.cluster_ca_certificate)
+ cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.example.kube_config.0.cluster_ca_certificate)
 }
 
 resource "kubernetes_namespace" "example" {
