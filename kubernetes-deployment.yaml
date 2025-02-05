@@ -1,45 +1,36 @@
-﻿apiVersion: v1
-kind: Namespace
+apiVersion: v1
+kind: Secret
 metadata:
-  name: assessment-app
-
+  name: azure-key-vault-secrets
+  namespace: example-namespace
+data:
+  SPD_KEY_VAULT_URI: aHR0cHM6Ly9rdi1hc3Nlc3NtZW50LWFwcC52YXVsdC5henVyZS5uZXQv
 
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: assessment-app
-  namespace: assessment-app
+  name: example-app
+  namespace: example-namespace
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: assessment-app
+      app: example-app
   template:
     metadata:
       labels:
-        app: assessment-app
+        app: example-app
     spec:
       containers:
-      - name: assessment-app
-        image: seu-registry/assessment-app:latest
+      - name: example-app
+        image: your-docker-image
         ports:
         - containerPort: 8080
         env:
         - name: SPD_KEY_VAULT_URI
-          value: "https://kv-assessment-app.vault.azure.net/"
-
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: assessment-app-service
-  namespace: assessment-app
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 8080
-  selector:
-    app: assessment-app
+          valueFrom:
+            secretKeyRef:
+              name: azure-key-vault-secrets
+              key: SPD_KEY_VAULT_URI
